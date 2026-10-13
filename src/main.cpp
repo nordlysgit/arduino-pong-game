@@ -93,8 +93,7 @@ void print_vel(){
   Serial.println();
 }
 
-void update(){
-  // Outer bounds
+void update(){  // Outer bounds
   if(pos.x > limit.x_outer || pos.x <limit.x_inner || pos.y > limit.y_outer || pos.y < limit.y_inner){
     kill_ball();  
   }
@@ -108,7 +107,7 @@ void update(){
   //   }
 }
 
-void kill_ball(){
+void kill_ball(){ // Ends the game and gives error.
   Serial.print("Error Out of Bounds");
   while(1);
 }
