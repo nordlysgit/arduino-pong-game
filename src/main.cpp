@@ -188,41 +188,85 @@ void move(){ // Adds current vector to next tick of ball position.
 }
 
 void draw_ball(){
-  // Turn on all cathodes except activated one
-  for(int i = 0; i < number_of_pins; i++){
+  for(int i = 0; i < number_of_pins; i++){ // Turn ON all cathodes except cathode x
     if(i == ball_pos.x){
       continue;
     }
     digitalWrite(cathode_pin[i], HIGH);
   }
-  digitalWrite(anode_pin[ball_pos.y], HIGH);
-  delay(1);
-  for(int i = 0; i < number_of_pins; i++){
-    if(i == ball_pos.x){
+  for(int i = 0; i < number_of_pins; i++){ // Turn OFF all anodes except anode y
+    if(i == ball_pos.y){
       continue;
     }
+    digitalWrite(anode_pin[i], LOW);
+  }
+
+  digitalWrite(cathode_pin[ball_pos.x], LOW);
+  digitalWrite(anode_pin[ball_pos.y], HIGH);
+  delay(1);
+
+  for(int i = 0; i < number_of_pins; i++){
+    digitalWrite(anode_pin[i], LOW);
+  }
+  for(int i = 0; i < number_of_pins; i++){
     digitalWrite(cathode_pin[i], LOW);
   }
+
+  
   digitalWrite(anode_pin[ball_pos.y], LOW);
+  
+  // for(int i = 0; i < number_of_pins; i++){
+  //   if(i == ball_pos.x){
+  //     continue;
+  //   }
+  //   digitalWrite(cathode_pin[i], LOW);
+  // }
+  // digitalWrite(anode_pin[ball_pos.y], LOW);
   // All but x must be high
 }
 
+// void draw_racket(){
+//   for(int i = 0; i < number_of_pins; i++){
+//     if(i == player_1.x){
+//       continue;
+//     }
+//     digitalWrite(cathode_pin[i], HIGH);
+//   }
+//   digitalWrite(anode_pin[player_1.y], HIGH);
+//   delay(1);
+//   for(int i = 0; i < number_of_pins; i++){
+//     if(i == player_1.x){
+//       continue;
+//     }
+//     digitalWrite(cathode_pin[i], LOW);
+//   }
+//   digitalWrite(anode_pin[player_1.y], LOW);
+// }
+
 void draw_racket(){
-  for(int i = 0; i < number_of_pins; i++){
+  for(int i = 0; i < number_of_pins; i++){ // Turn ON all cathodes except cathode x
     if(i == player_1.x){
       continue;
     }
     digitalWrite(cathode_pin[i], HIGH);
   }
-  digitalWrite(anode_pin[player_1.y], HIGH);
-  delay(1);
-  for(int i = 0; i < number_of_pins; i++){
-    if(i == player_1.x){
+  for(int i = 0; i < number_of_pins; i++){ // Turn OFF all anodes except anode y
+    if(i == player_1.y){
       continue;
     }
+    digitalWrite(anode_pin[i], LOW);
+  }
+
+  digitalWrite(cathode_pin[player_1.x], LOW);
+  digitalWrite(anode_pin[player_1.y], HIGH);
+  delay(1);
+
+  for(int i = 0; i < number_of_pins; i++){
+    digitalWrite(anode_pin[i], LOW);
+  }
+  for(int i = 0; i < number_of_pins; i++){
     digitalWrite(cathode_pin[i], LOW);
   }
-  digitalWrite(anode_pin[player_1.y], LOW);
 }
 
 void print_pos(){
