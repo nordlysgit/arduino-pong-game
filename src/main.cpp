@@ -23,8 +23,8 @@ const int c = 6;
 const int b = 7;
 const int a = 8;
 // player 2 
-const int g2 = A14;
-const int f2 = A15;
+const int g2 = 14;
+const int f2 = 15;
 const int e2 = 13;
 const int d2 = 12;
 const int c2 = 11;
@@ -66,6 +66,9 @@ void draw_ball();
 void draw_racket_1();
 void draw_racket_2();
 void move();
+void restart_game();
+
+void start_animation();
 
 
 //Print functions declarations
@@ -85,8 +88,8 @@ void Racket_ballhit();
 
 //Structs
 struct { // Positions x and y values.
-  int x = 1; // Start position x
-  int y = 4; // Start position y
+  int x = 8; // Start position x
+  int y = 8; // Start position y
 } ball_pos;
 
 struct { // Positions x and y values.
@@ -139,6 +142,8 @@ void setup() {
   Serial.begin(9600);
   initialize_pins();
   initialize_display();
+  start_animation();
+  restart_game();
 
   // 7 segment stuff
   showpoints(points1, segdisplay1);
@@ -181,8 +186,6 @@ void loop() {
     // print_vel();
     // print_player_pos();
     // Serial.println();
-    showpoints(points1, segdisplay1);
-    showpoints(points2, segdisplay2);
   }
   if (currentMillis5 == MillisTimer1){
 
@@ -221,6 +224,8 @@ void loop() {
   }
   //Serial.print(MillisTimer1);
   //Maybe move to a millis?
+  showpoints(points1, segdisplay1);
+  showpoints(points2, segdisplay2);
 }
 
 
@@ -276,6 +281,20 @@ void initialize_display(){ // Resets display / turns all outputs to LOW
     // Serial.println(" LOW");
   }
   Serial.println("Display Initialization Successful");
+}
+
+void start_animation(){
+  for (int i = 0; i < number_of_pins; i++){
+    digitalWrite(anode_pin[i], HIGH);
+    digitalWrite(cathode_pin[i], LOW);
+    delay(20);
+  }
+
+  for (int i = 0; i < number_of_pins; i++){
+    digitalWrite(anode_pin[i], LOW);
+    digitalWrite(cathode_pin[i], LOW);
+    delay(20);
+  }
 }
 
 void hori_bounce(){ // Horizontal bounce.
