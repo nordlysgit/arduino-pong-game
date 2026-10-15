@@ -187,13 +187,7 @@ void loop() {
     // print_player_pos();
     // Serial.println();
   }
-  if (currentMillis5 == MillisTimer1){
-
-    // int randint = random(0, 2);
-    // if(randint == 0){
-
-    // }
-
+  if (currentMillis5 > MillisTimer1 && currentMillis5 < MillisTimer1 + 20){
     if(ball_vel.x == 0 && ball_vel.y == 0){
     int randint = random(0, 3);
       if(randint == 0){
