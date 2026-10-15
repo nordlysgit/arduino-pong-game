@@ -46,8 +46,11 @@ unsigned long long previousMillis = 0;
 unsigned long long previousMillis2 = 0;
 unsigned long long previousMillis3 = 0;
 unsigned long long previousMillis4 = 0;
-unsigned long long previousMillis5 = 0;
+//unsigned long long previousMillis5 = 0;
+unsigned long MillisTimer1 = 0;
+
 const int tick_interval = 128;
+const int restart_game_pause_duration = 200;
 int previous_ball_pos[2] = {};
 
 // Function declarations
@@ -60,7 +63,10 @@ void draw_ball();
 void draw_racket();
 void move();
 
+
+//Print functions declarations
 void print_pos();
+void print_vel();
 void print_score();
 
 // Joystick
@@ -149,7 +155,9 @@ void loop() {
     Player_joystick();
     Racket();
     print_score();
-    //print_pos();
+    print_pos();
+    print_vel();
+    Serial.println();
   }
   if (currentMillis4 - previousMillis4 >= 1000){
     previousMillis4 = currentMillis4;
@@ -157,8 +165,7 @@ void loop() {
     // Serial.println(player_1.y);
 
   }
-  if (currentMillis5 - previousMillis5 >= 2000){
-    previousMillis5 = currentMillis5;
+  if (currentMillis5 == MillisTimer1){
     if(ball_vel.x == 0){
       ball_vel.x = 1;
     }
@@ -167,6 +174,8 @@ void loop() {
     }
 
   }
+  //Serial.print(MillisTimer1);
+  //Maybe move to a millis?
   showpoints(points1, segdisplay1);
   showpoints(points2, segdisplay2);
 }
@@ -235,20 +244,46 @@ void verti_bounce(){ // Vertical bounce.
 }
 
 void restart_game(){
+  unsigned long long timer = millis();
+  MillisTimer1 = timer + restart_game_pause_duration;
   ball_pos.x = 8;
   ball_pos.y = 8;
   ball_vel.x = 0;
   ball_vel.y = 0;
 }
 
+
+// Print fucntions
 void print_score(){
+  Serial.print("Scoreboard: ");
   Serial.print("Player 1 points: ");
   Serial.print(points1);
   Serial.print(" ");
   Serial.print("Player 2 points: ");
   Serial.print(points2);
-  Serial.println(" ");
+  Serial.print(" ");
 }
+
+void print_pos(){
+  Serial.print("Ball Position: ");
+  Serial.print("Pos x: ");
+  Serial.print(ball_pos.x);
+  Serial.print(" ");
+  Serial.print("Pos y: ");
+  Serial.print(ball_pos.y);
+  Serial.print(" ");
+}
+
+void print_vel(){
+  Serial.print("Ball Velocity: ");
+  Serial.print("Vel x: ");
+  Serial.print(ball_vel.x);
+  Serial.print(" ");
+  Serial.print("Vel y: ");
+  Serial.print(ball_vel.y);
+  Serial.print(" ");
+}
+
 
 void move(){ // Adds current vector to next tick of ball position.
   ball_pos.x += ball_vel.x;
@@ -365,15 +400,6 @@ void draw_racket(){
   for(int i = 0; i < number_of_pins; i++){
     digitalWrite(cathode_pin[i], LOW);
   }
-}
-
-void print_pos(){
-  Serial.print("Pos x: ");
-  Serial.print(ball_pos.x);
-  Serial.print(" ");
-  Serial.print("Pos y: ");
-  Serial.print(ball_pos.y);
-  Serial.println();
 }
 
 // Joystick
