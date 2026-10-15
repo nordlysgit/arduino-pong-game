@@ -34,7 +34,8 @@ const int a2 = 9;
 //Joystick variables
 // int player_1_stick_val_x = analogRead(player_1_stick_x);
 // int player_2_stick_val_x = analogRead(player_2_stick_x);
-int bevegelse = 0;
+int player_1_bevegelse_y = 0;
+int player_2_bevegelse_y = 0;
 
 // 7 Segment display variables Må bytte noen pins
 int segdisplay1[] = {8, 7, 6, 5, 4, 3, 2};
@@ -46,8 +47,9 @@ int points2 = 0;
 unsigned long long previousMillis = 0;
 unsigned long long previousMillis2 = 0;
 unsigned long long previousMillis3 = 0;
-//unsigned long long previousMillis4 = 0;
+unsigned long long previousMillis4 = 0;
 //unsigned long long previousMillis5 = 0;
+unsigned long long previousMillis6 = 0;
 unsigned long MillisTimer1 = 0;
 
 const int tick_interval = 128;
@@ -61,7 +63,8 @@ void update();
 void initialize_pins();
 void initialize_display();
 void draw_ball();
-void draw_racket();
+void draw_racket_1();
+void draw_racket_2();
 void move();
 
 
@@ -69,6 +72,7 @@ void move();
 void print_pos();
 void print_vel();
 void print_score();
+void print_player_pos();
 
 // Joystick
 void Player_joystick();
@@ -113,14 +117,23 @@ struct { // Floor
 } floor_wall;
 
  struct { // Player 1 racket
-int x = 15; // Added x coordinates
+int x = 0; // Added x coordinates
 int y = 4;
 } player_1;
 
+ struct { // Player 2 racket
+int x = 15; // Added x coordinates
+int y = 4;
+} player_2;
+
 //Racket
-int racket_midt1;
-int racket_midt2;
-int racket_bunn;
+int racket1_midt1;
+int racket1_midt2;
+int racket1_bunn;
+
+int racket2_midt1;
+int racket2_midt2;
+int racket2_bunn;
 
 void setup() {
   Serial.begin(9600);
@@ -140,33 +153,37 @@ void loop() {
   unsigned long long currentMillis = millis();
   unsigned long long currentMillis2 = millis();
   unsigned long long currentMillis3 = millis();
-  //unsigned long long currentMillis4 = millis();
+  unsigned long long currentMillis4 = millis();
   unsigned long long currentMillis5 = millis();
+  unsigned long long currentMillis6 = millis();
   if (currentMillis - previousMillis >= 10){
     previousMillis = currentMillis;
     draw_ball();
   }
   if (currentMillis2 - previousMillis2 >= 10){
     previousMillis2 = currentMillis2;
-    draw_racket();
+    draw_racket_1();
+  }
+  if (currentMillis4 - previousMillis4 >= 10){
+    previousMillis4 = currentMillis4;
+    draw_racket_2();
+  }
+  if (currentMillis6 - previousMillis6 >= 64){
+    previousMillis6 = currentMillis6;
+    Player_joystick();
+    Racket();
   }
   if (currentMillis3 - previousMillis3 >= 128){
     previousMillis3 = currentMillis3;
     move();
-    Player_joystick();
-    Racket();
-    print_score();
-    print_pos();
-    print_vel();
-    Serial.println();
+    // print_score();
+    // print_pos();
+    // print_vel();
+    // print_player_pos();
+    // Serial.println();
     showpoints(points1, segdisplay1);
     showpoints(points2, segdisplay2);
   }
-  // if (currentMillis4 - previousMillis4 >= 1000){
-  //   previousMillis4 = currentMillis4;
-  //   // Serial.println(analogRead(yaxis1));
-  //   // Serial.println(player_1.y);
-  // }
   if (currentMillis5 == MillisTimer1){
     if(ball_vel.x == 0){
       ball_vel.x = 1;
@@ -284,6 +301,16 @@ void print_vel(){
   Serial.print(" ");
 }
 
+void print_player_pos(){
+  Serial.print("Player 1 Position: ");
+  Serial.print("Pos y: ");
+  Serial.print(player_1.y);
+  Serial.print(" ");
+  Serial.print("Player 2 Position: ");
+  Serial.print("Pos y: ");
+  Serial.print(player_2.y);
+  Serial.print(" ");
+}
 
 void move(){ // Adds current vector to next tick of ball position.
   ball_pos.x += ball_vel.x;
@@ -370,10 +397,11 @@ void draw_ball(){
 //   digitalWrite(anode_pin[player_1.y], LOW);
 // }
 
-void draw_racket(){
-  racket_midt1 = player_1.y +1;
-  racket_midt2 = player_1.y +2 ;
-  racket_bunn = player_1.y +3 ;
+void draw_racket_1(){
+
+  racket1_midt1 = player_1.y +1;
+  racket1_midt2 = player_1.y +2 ;
+  racket1_bunn = player_1.y +3 ;
 
   for(int i = 0; i < number_of_pins; i++){ // Turn ON all cathodes except cathode x
     if(i == player_1.x){
@@ -382,16 +410,49 @@ void draw_racket(){
     digitalWrite(cathode_pin[i], HIGH);
   }
   for(int i = 0; i < number_of_pins; i++){ // Turn OFF all anodes except anode y
-    if(i == player_1.y || i == racket_midt1 || i == racket_midt2 || i == racket_bunn){continue;}
+    if(i == player_1.y || i == racket1_midt1 || i == racket1_midt2 || i == racket1_bunn){continue;}
     digitalWrite(anode_pin[i], LOW);
   }
 
   // Turns on the desired LEDs
   digitalWrite(cathode_pin[player_1.x], LOW);
   digitalWrite(anode_pin[player_1.y], HIGH);
-  digitalWrite(anode_pin[racket_midt1], HIGH);
-  digitalWrite(anode_pin[racket_midt2], HIGH);
-  digitalWrite(anode_pin[racket_bunn], HIGH);
+  digitalWrite(anode_pin[racket1_midt1], HIGH);
+  digitalWrite(anode_pin[racket1_midt2], HIGH);
+  digitalWrite(anode_pin[racket1_bunn], HIGH);
+  delay(1);
+
+  for(int i = 0; i < number_of_pins; i++){
+    digitalWrite(anode_pin[i], LOW);
+  }
+  for(int i = 0; i < number_of_pins; i++){
+    digitalWrite(cathode_pin[i], LOW);
+  }
+}
+
+void draw_racket_2(){
+
+  racket2_midt1 = player_2.y +1;
+  racket2_midt2 = player_2.y +2 ;
+  racket2_bunn = player_2.y +3 ;
+
+  for(int i = 0; i < number_of_pins; i++){ // Turn ON all cathodes except cathode x
+    if(i == player_2.x){
+      continue;
+    }
+    digitalWrite(cathode_pin[i], HIGH);
+  }
+  for(int i = 0; i < number_of_pins; i++){ // Turn OFF all anodes except anode y
+    if(i == player_2.y || i == racket2_midt1 || i == racket2_midt2 || i == racket2_bunn){continue;}
+    digitalWrite(anode_pin[i], LOW);
+  }
+
+  // Turns on the desired LEDs
+  digitalWrite(cathode_pin[player_2.x], LOW);
+  digitalWrite(anode_pin[player_2.y], HIGH);
+  digitalWrite(anode_pin[racket2_midt1], HIGH);
+  digitalWrite(anode_pin[racket2_midt2], HIGH);
+  digitalWrite(anode_pin[racket2_bunn], HIGH);
   delay(1);
 
   for(int i = 0; i < number_of_pins; i++){
@@ -404,12 +465,22 @@ void draw_racket(){
 
 // Joystick
 void Player_joystick(){
-  if (analogRead(player_2_stick_y) < 350) {
-    bevegelse = 1; 
-  } else if (analogRead(player_2_stick_y) > 650) {
-    bevegelse = -1;
+  // Player 1
+  if (analogRead(player_1_stick_y) < 350) {
+    player_1_bevegelse_y = 1; 
+  } else if (analogRead(player_1_stick_y) > 650) {
+    player_1_bevegelse_y = -1;
   } else {
-    bevegelse = 0;
+    player_1_bevegelse_y = 0;
+  }
+
+  // Player 2
+  if (analogRead(player_2_stick_y) < 350) {
+    player_2_bevegelse_y = 1; 
+  } else if (analogRead(player_2_stick_y) > 650) {
+    player_2_bevegelse_y = -1;
+  } else {
+    player_2_bevegelse_y = 0;
   }
 }
 
@@ -417,20 +488,38 @@ void Player_joystick(){
 //Racket
 void Racket(){
 
+//Player 1
 if(player_1.y == 0){
-  if(bevegelse == 1){
-    player_1.y += bevegelse;
+  if(player_1_bevegelse_y == 1){
+    player_1.y += player_1_bevegelse_y;
   }
-  if(bevegelse == -1){}
+  if(player_1_bevegelse_y == -1){}
 }
 else if(player_1.y == 12){
-  if(bevegelse == -1){
-    player_1.y += bevegelse;
+  if(player_1_bevegelse_y == -1){
+    player_1.y += player_1_bevegelse_y;
   }
-  if(bevegelse == 1){}
+  if(player_1_bevegelse_y == 1){}
 }
 else{
-  player_1.y += bevegelse; // (bevegelse * 5);
+  player_1.y += player_1_bevegelse_y; // (bevegelse * 5);
+}
+
+//Player 2
+if(player_2.y == 0){
+  if(player_2_bevegelse_y == 1){
+    player_2.y += player_2_bevegelse_y;
+  }
+  if(player_2_bevegelse_y == -1){}
+}
+else if(player_2.y == 12){
+  if(player_2_bevegelse_y == -1){
+    player_2.y += player_2_bevegelse_y;
+  }
+  if(player_2_bevegelse_y == 1){}
+}
+else{
+  player_2.y += player_2_bevegelse_y; // (bevegelse * 5);
 }
 
 // if(player_1.y == 12){
@@ -452,12 +541,18 @@ else{
 }
 
 void Racket_ballhit(){ //eddit
-if(ball_pos.x == 15){
-if (ball_pos.y == player_1.y|| ball_pos.y == racket_midt1 || ball_pos.y == racket_midt2 || ball_pos.y == racket_bunn){
-    hori_bounce();
-    ball_pos.x = 14;
-}
-}
+  if(ball_pos.x == 15){
+    if (ball_pos.y == player_2.y|| ball_pos.y == racket2_midt1 || ball_pos.y == racket2_midt2 || ball_pos.y == racket2_bunn){
+      hori_bounce();
+      ball_pos.x = 14;
+    }
+  }
+  if(ball_pos.x == 0){
+    if (ball_pos.y == player_1.y|| ball_pos.y == racket1_midt1 || ball_pos.y == racket1_midt2 || ball_pos.y == racket1_bunn){
+      hori_bounce();
+      ball_pos.x = 1;
+    }
+  }
 }
 
 void showpoints(int tall, int display[]) {
