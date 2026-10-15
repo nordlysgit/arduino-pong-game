@@ -6,11 +6,12 @@ const int number_of_pins = 16; // Kinda means the pixel width and height (1:1)
 const int cathode_pin[number_of_pins] = {23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43, 45, 47, 49, 51, 53}; // cathode pins x-axis
 const int anode_pin[number_of_pins] = {22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52}; // Anode pins y-axis
 
-// Joystick pins
-const int xaxis1 = A2;
-const int yaxis1 = A3;
-const int xaxis2 = A4;
-const int yaxis2 = A5;
+// Player 1 joystick pins
+//const int player_1_stick_x = A4;
+const int player_1_stick_y = A5;
+// Player 2 joystick pins
+//const int player_2_stick_x = A2;
+const int player_2_stick_y = A3;
 
 // 7 Segment display pins 
 // player 1 Må bytte pins
@@ -30,9 +31,9 @@ const int c2 = 11;
 const int b2 = 10;
 const int a2 = 9;
 
-//Joustick variables
-int x1 = analogRead(xaxis1);
-int x2 = analogRead(xaxis2);
+//Joystick variables
+// int player_1_stick_val_x = analogRead(player_1_stick_x);
+// int player_2_stick_val_x = analogRead(player_2_stick_x);
 int bevegelse = 0;
 
 // 7 Segment display variables Må bytte noen pins
@@ -45,7 +46,7 @@ int points2 = 0;
 unsigned long long previousMillis = 0;
 unsigned long long previousMillis2 = 0;
 unsigned long long previousMillis3 = 0;
-unsigned long long previousMillis4 = 0;
+//unsigned long long previousMillis4 = 0;
 //unsigned long long previousMillis5 = 0;
 unsigned long MillisTimer1 = 0;
 
@@ -139,7 +140,7 @@ void loop() {
   unsigned long long currentMillis = millis();
   unsigned long long currentMillis2 = millis();
   unsigned long long currentMillis3 = millis();
-  unsigned long long currentMillis4 = millis();
+  //unsigned long long currentMillis4 = millis();
   unsigned long long currentMillis5 = millis();
   if (currentMillis - previousMillis >= 10){
     previousMillis = currentMillis;
@@ -158,13 +159,14 @@ void loop() {
     print_pos();
     print_vel();
     Serial.println();
+    showpoints(points1, segdisplay1);
+    showpoints(points2, segdisplay2);
   }
-  if (currentMillis4 - previousMillis4 >= 1000){
-    previousMillis4 = currentMillis4;
-    // Serial.println(analogRead(yaxis1));
-    // Serial.println(player_1.y);
-
-  }
+  // if (currentMillis4 - previousMillis4 >= 1000){
+  //   previousMillis4 = currentMillis4;
+  //   // Serial.println(analogRead(yaxis1));
+  //   // Serial.println(player_1.y);
+  // }
   if (currentMillis5 == MillisTimer1){
     if(ball_vel.x == 0){
       ball_vel.x = 1;
@@ -176,8 +178,6 @@ void loop() {
   }
   //Serial.print(MillisTimer1);
   //Maybe move to a millis?
-  showpoints(points1, segdisplay1);
-  showpoints(points2, segdisplay2);
 }
 
 
@@ -404,9 +404,9 @@ void draw_racket(){
 
 // Joystick
 void Player_joystick(){
-  if (analogRead(yaxis1) < 350) {
+  if (analogRead(player_2_stick_y) < 350) {
     bevegelse = 1; 
-  } else if (analogRead(yaxis1) > 650) {
+  } else if (analogRead(player_2_stick_y) > 650) {
     bevegelse = -1;
   } else {
     bevegelse = 0;
