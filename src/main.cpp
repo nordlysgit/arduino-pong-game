@@ -67,6 +67,7 @@ void draw_racket_1();
 void draw_racket_2();
 void move();
 void restart_game();
+void new_game();
 
 void start_animation();
 
@@ -220,6 +221,11 @@ void loop() {
   //Maybe move to a millis?
   showpoints(points1, segdisplay1);
   showpoints(points2, segdisplay2);
+  if(points1 == 9 || points2 == 9){
+    delay(500);
+    points1 = 0; points2 = 0;
+    new_game();
+  }
 }
 
 
@@ -277,6 +283,8 @@ void initialize_display(){ // Resets display / turns all outputs to LOW
   Serial.println("Display Initialization Successful");
 }
 
+
+// Display animations
 void start_animation(){
   for (int i = 0; i < number_of_pins; i++){
     digitalWrite(anode_pin[i], HIGH);
@@ -289,6 +297,38 @@ void start_animation(){
     digitalWrite(cathode_pin[i], LOW);
     delay(20);
   }
+}
+
+void new_game(){ // If a player reaches highscore
+  // Animation part
+
+  for (int i = 0; i < number_of_pins; i++){
+    digitalWrite(anode_pin[i], LOW);
+    digitalWrite(cathode_pin[i], HIGH);
+    delay(50);
+  }
+
+  for (int i = 0; i < number_of_pins; i++){
+    digitalWrite(anode_pin[i], HIGH);
+    digitalWrite(cathode_pin[i], LOW);
+    delay(50);
+  }
+
+  for (int i = 0; i < number_of_pins; i++){
+    digitalWrite(anode_pin[i], LOW);
+    digitalWrite(cathode_pin[i], HIGH);
+    delay(50);
+  }
+
+
+
+  // All off
+  for (int i = 0; i < number_of_pins; i++){ // All off
+    digitalWrite(anode_pin[i], LOW);
+    digitalWrite(cathode_pin[i], LOW);
+  }
+
+  restart_game();
 }
 
 void hori_bounce(){ // Horizontal bounce.
