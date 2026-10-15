@@ -79,6 +79,11 @@ int x = 15; // Added x coordinates
 int y = 4;
 } player_1;
 
+//Racket
+int racket_midt1;
+int racket_midt2;
+int racket_bunn;
+
 void setup() {
   Serial.begin(9600);
   initialize_pins();
@@ -244,6 +249,11 @@ void draw_ball(){
 // }
 
 void draw_racket(){
+
+  racket_midt1 = player_1.y +1;
+  racket_midt2 = player_1.y +2 ;
+  racket_bunn = player_1.y +3 ;
+
   for(int i = 0; i < number_of_pins; i++){ // Turn ON all cathodes except cathode x
     if(i == player_1.x){
       continue;
@@ -251,14 +261,16 @@ void draw_racket(){
     digitalWrite(cathode_pin[i], HIGH);
   }
   for(int i = 0; i < number_of_pins; i++){ // Turn OFF all anodes except anode y
-    if(i == player_1.y){
-      continue;
-    }
+    if(i == player_1.y || i == racket_midt1 || i == racket_midt2 || i == racket_bunn){continue;}
     digitalWrite(anode_pin[i], LOW);
   }
 
+  // Turns on the desired LEDs
   digitalWrite(cathode_pin[player_1.x], LOW);
   digitalWrite(anode_pin[player_1.y], HIGH);
+  digitalWrite(anode_pin[racket_midt1], HIGH);
+  digitalWrite(anode_pin[racket_midt2], HIGH);
+  digitalWrite(anode_pin[racket_bunn], HIGH);
   delay(1);
 
   for(int i = 0; i < number_of_pins; i++){
@@ -289,13 +301,40 @@ void Player_joystick(){
   }
 }
 
-void Racket(){
-player_1.y += bevegelse; // (bevegelse * 5);
 
-if ((player_1.y - 1) >= roof.position) { // changed from < to >
-  player_1.y = roof.position + 1;
+//Racket
+void Racket(){
+
+if(player_1.y == 0){
+  if(bevegelse == 1){
+    player_1.y += bevegelse;
   }
-if ((player_1.y + 1) > floor_wall.position) {
-   player_1.y = floor_wall.position - 1;
+  if(bevegelse == -1){}
+}
+else if(player_1.y == 12){
+  if(bevegelse == -1){
+    player_1.y += bevegelse;
   }
+  if(bevegelse == 1){}
+}
+else{
+  player_1.y += bevegelse; // (bevegelse * 5);
+}
+
+// if(player_1.y == 12){
+//   if(bevegelse == -1){
+//     player_1.y += bevegelse;
+//   }
+//   if(bevegelse == 1){}
+// }
+// else{
+//   player_1.y += bevegelse; // (bevegelse * 5);
+// }
+
+// if ((player_1.y - 1) >= roof.position) { // changed from < to >
+//   player_1.y = roof.position + 12;
+//   }
+// if ((player_1.y + 1) > floor_wall.position) {
+//    player_1.y = floor_wall.position - 1;
+//   }
 }
