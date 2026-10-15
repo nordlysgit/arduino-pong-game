@@ -7,10 +7,10 @@ const int cathode_pin[number_of_pins] = {23, 25, 27, 29, 31, 33, 35, 37, 39, 41,
 const int anode_pin[number_of_pins] = {22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52}; // Anode pins y-axis
 
 // Joystick pins
-const int xaxis1 = A0;
-const int yaxis1 = A1;
-const int xaxis2 = A3;
-const int yaxis2 = A4;
+const int xaxis1 = A2;
+const int yaxis1 = A3;
+const int xaxis2 = A4;
+const int yaxis2 = A5;
 
 // 7 Segment display pins 
 // player 1 Må bytte pins
@@ -22,8 +22,8 @@ const int c = 6;
 const int b = 7;
 const int a = 8;
 // player 2 
-const int g2 = 1;
-const int f2 = 2;
+const int g2 = A8;
+const int f2 = A9;
 const int e2 = 13;
 const int d2 = 12;
 const int c2 = 11;
@@ -46,6 +46,7 @@ unsigned long long previousMillis = 0;
 unsigned long long previousMillis2 = 0;
 unsigned long long previousMillis3 = 0;
 unsigned long long previousMillis4 = 0;
+unsigned long long previousMillis5 = 0;
 const int tick_interval = 128;
 int previous_ball_pos[2] = {};
 
@@ -60,13 +61,16 @@ void draw_racket();
 void move();
 
 void print_pos();
+void print_score();
 
 // Joystick
 void Player_joystick();
 void Racket();
 
 // 7 segment display
-void showpoints(int tall, int display);
+void showpoints(int tall, int display[]);
+
+void Racket_ballhit();
 
 //Structs
 struct { // Positions x and y values.
@@ -117,8 +121,8 @@ void setup() {
   initialize_display();
 
   // 7 segment stuff
-  showpoints(points1, 1);
-  showpoints(points2, 2);
+  showpoints(points1, segdisplay1);
+  showpoints(points2, segdisplay2);
 
   // Joystick stuff
   roof.position = boundary.y_outer; //limit.y_outer / board_size_y ;
@@ -130,6 +134,7 @@ void loop() {
   unsigned long long currentMillis2 = millis();
   unsigned long long currentMillis3 = millis();
   unsigned long long currentMillis4 = millis();
+  unsigned long long currentMillis5 = millis();
   if (currentMillis - previousMillis >= 10){
     previousMillis = currentMillis;
     draw_ball();
@@ -143,13 +148,27 @@ void loop() {
     move();
     Player_joystick();
     Racket();
+    print_score();
     //print_pos();
   }
   if (currentMillis4 - previousMillis4 >= 1000){
     previousMillis4 = currentMillis4;
-    Serial.println(analogRead(yaxis1));
-    Serial.println(player_1.y);
+    // Serial.println(analogRead(yaxis1));
+    // Serial.println(player_1.y);
+
   }
+  if (currentMillis5 - previousMillis5 >= 2000){
+    previousMillis5 = currentMillis5;
+    if(ball_vel.x == 0){
+      ball_vel.x = 1;
+    }
+    if(ball_vel.y == 0){
+      ball_vel.y = 2;
+    }
+
+  }
+  showpoints(points1, segdisplay1);
+  showpoints(points2, segdisplay2);
 }
 
 
@@ -218,6 +237,17 @@ void verti_bounce(){ // Vertical bounce.
 void restart_game(){
   ball_pos.x = 8;
   ball_pos.y = 8;
+  ball_vel.x = 0;
+  ball_vel.y = 0;
+}
+
+void print_score(){
+  Serial.print("Player 1 points: ");
+  Serial.print(points1);
+  Serial.print(" ");
+  Serial.print("Player 2 points: ");
+  Serial.print(points2);
+  Serial.println(" ");
 }
 
 void move(){ // Adds current vector to next tick of ball position.
@@ -231,16 +261,14 @@ void move(){ // Adds current vector to next tick of ball position.
     verti_bounce();
     ball_pos.y = 0;
   }
-  if(ball_pos.x >= boundary.x_outer){
+  if(ball_pos.x >= boundary.x_outer + 1){
     points1++;
-    showpoints(points1, 1);
-    showpoints(points2, 2);
+    hori_bounce();
     restart_game();
   }
-  if(ball_pos.x <= boundary.x_inner){
+  if(ball_pos.x <= boundary.x_inner -1 ){
     points2++;
-    showpoints(points1, 1);
-    showpoints(points2, 2);
+    hori_bounce();
     restart_game();
   }
   // Out of bounds error handling
@@ -248,6 +276,7 @@ void move(){ // Adds current vector to next tick of ball position.
     Serial.print("Error Out of Bounds");
     while(1);
   }
+  Racket_ballhit();
 }
 
 void draw_ball(){
@@ -396,137 +425,78 @@ else{
 //   }
 }
 
-void showpoints(int tall, int display) {
-  if(display == 1){
+void Racket_ballhit(){ //eddit
+if(ball_pos.x == 15){
+if (ball_pos.y == player_1.y|| ball_pos.y == racket_midt1 || ball_pos.y == racket_midt2 || ball_pos.y == racket_bunn){
+    hori_bounce();
+    ball_pos.x = 14;
+}
+}
+}
+
+void showpoints(int tall, int display[]) {
   // skru ev segmenter  
   for (int i = 0; i < 7; i++) {
-    digitalWrite(segdisplay1[i], LOW);
+    digitalWrite(display[i], LOW);
   } // skrur på når den får riktig input 
   if (tall == 0) {
-    digitalWrite(segdisplay1[0], HIGH);
-    digitalWrite(segdisplay1[1], HIGH);
-    digitalWrite(segdisplay1[2], HIGH);
-    digitalWrite(segdisplay1[3], HIGH);
-    digitalWrite(segdisplay1[4], HIGH);
-    digitalWrite(segdisplay1[5], HIGH);
+    digitalWrite(display[0], HIGH);
+    digitalWrite(display[1], HIGH);
+    digitalWrite(display[2], HIGH);
+    digitalWrite(display[3], HIGH);
+    digitalWrite(display[4], HIGH);
+    digitalWrite(display[5], HIGH);
   } else if (tall == 1) {
-    digitalWrite(segdisplay1[1], HIGH);
-    digitalWrite(segdisplay1[2], HIGH);
+    digitalWrite(display[1], HIGH);
+    digitalWrite(display[2], HIGH);
   } else if (tall == 2) {
-    digitalWrite(segdisplay1[0], HIGH);
-    digitalWrite(segdisplay1[1], HIGH);
-    digitalWrite(segdisplay1[3], HIGH);
-    digitalWrite(segdisplay1[4], HIGH);
-    digitalWrite(segdisplay1[6], HIGH);
+    digitalWrite(display[0], HIGH);
+    digitalWrite(display[1], HIGH);
+    digitalWrite(display[3], HIGH);
+    digitalWrite(display[4], HIGH);
+    digitalWrite(display[6], HIGH);
   } else if (tall == 3) {
-    digitalWrite(segdisplay1[0], HIGH);
-    digitalWrite(segdisplay1[1], HIGH);
-    digitalWrite(segdisplay1[2], HIGH);
-    digitalWrite(segdisplay1[3], HIGH);
-    digitalWrite(segdisplay1[6], HIGH);
+    digitalWrite(display[0], HIGH);
+    digitalWrite(display[1], HIGH);
+    digitalWrite(display[2], HIGH);
+    digitalWrite(display[3], HIGH);
+    digitalWrite(display[6], HIGH);
   } else if (tall == 4) {
-    digitalWrite(segdisplay1[1], HIGH);
-    digitalWrite(segdisplay1[2], HIGH);
-    digitalWrite(segdisplay1[5], HIGH);
-    digitalWrite(segdisplay1[6], HIGH);
+    digitalWrite(display[1], HIGH);
+    digitalWrite(display[2], HIGH);
+    digitalWrite(display[5], HIGH);
+    digitalWrite(display[6], HIGH);
   } else if (tall == 5) {
-    digitalWrite(segdisplay1[0], HIGH);
-    digitalWrite(segdisplay1[2], HIGH);
-    digitalWrite(segdisplay1[3], HIGH);
-    digitalWrite(segdisplay1[5], HIGH);
-    digitalWrite(segdisplay1[6], HIGH);
+    digitalWrite(display[0], HIGH);
+    digitalWrite(display[2], HIGH);
+    digitalWrite(display[3], HIGH);
+    digitalWrite(display[5], HIGH);
+    digitalWrite(display[6], HIGH);
   } else if (tall == 6) {
-    digitalWrite(segdisplay1[0], HIGH);
-    digitalWrite(segdisplay1[2], HIGH);
-    digitalWrite(segdisplay1[3], HIGH);
-    digitalWrite(segdisplay1[4], HIGH);
-    digitalWrite(segdisplay1[5], HIGH);
-    digitalWrite(segdisplay1[6], HIGH);
+    digitalWrite(display[0], HIGH);
+    digitalWrite(display[2], HIGH);
+    digitalWrite(display[3], HIGH);
+    digitalWrite(display[4], HIGH);
+    digitalWrite(display[5], HIGH);
+    digitalWrite(display[6], HIGH);
   } else if (tall == 7) {
-    digitalWrite(segdisplay1[0], HIGH);
-    digitalWrite(segdisplay1[1], HIGH);
-    digitalWrite(segdisplay1[2], HIGH);
+    digitalWrite(display[0], HIGH);
+    digitalWrite(display[1], HIGH);
+    digitalWrite(display[2], HIGH);
   } else if (tall == 8) {
-    digitalWrite(segdisplay1[0], HIGH);
-    digitalWrite(segdisplay1[1], HIGH);
-    digitalWrite(segdisplay1[2], HIGH);
-    digitalWrite(segdisplay1[3], HIGH);
-    digitalWrite(segdisplay1[4], HIGH);
-    digitalWrite(segdisplay1[5], HIGH);
-    digitalWrite(segdisplay1[6], HIGH);
+    digitalWrite(display[0], HIGH);
+    digitalWrite(display[1], HIGH);
+    digitalWrite(display[2], HIGH);
+    digitalWrite(display[3], HIGH);
+    digitalWrite(display[4], HIGH);
+    digitalWrite(display[5], HIGH);
+    digitalWrite(display[6], HIGH);
   } else if (tall == 9) {
-    digitalWrite(segdisplay1[0], HIGH);
-    digitalWrite(segdisplay1[1], HIGH);
-    digitalWrite(segdisplay1[2], HIGH);
-    digitalWrite(segdisplay1[3], HIGH);
-    digitalWrite(segdisplay1[5], HIGH);
-    digitalWrite(segdisplay1[6], HIGH);
+    digitalWrite(display[0], HIGH);
+    digitalWrite(display[1], HIGH);
+    digitalWrite(display[2], HIGH);
+    digitalWrite(display[3], HIGH);
+    digitalWrite(display[5], HIGH);
+    digitalWrite(display[6], HIGH);
   }
-}
-  if(display == 2){
-  // skru ev segmenter  
-  for (int i = 0; i < 7; i++) {
-    digitalWrite(segdisplay2[i], LOW);
-  } // skrur på når den får riktig input 
-  if (tall == 0) {
-    digitalWrite(segdisplay2[0], HIGH);
-    digitalWrite(segdisplay2[1], HIGH);
-    digitalWrite(segdisplay2[2], HIGH);
-    digitalWrite(segdisplay2[3], HIGH);
-    digitalWrite(segdisplay2[4], HIGH);
-    digitalWrite(segdisplay2[5], HIGH);
-  } else if (tall == 1) {
-    digitalWrite(segdisplay2[1], HIGH);
-    digitalWrite(segdisplay2[2], HIGH);
-  } else if (tall == 2) {
-    digitalWrite(segdisplay2[0], HIGH);
-    digitalWrite(segdisplay2[1], HIGH);
-    digitalWrite(segdisplay2[3], HIGH);
-    digitalWrite(segdisplay2[4], HIGH);
-    digitalWrite(segdisplay2[6], HIGH);
-  } else if (tall == 3) {
-    digitalWrite(segdisplay2[0], HIGH);
-    digitalWrite(segdisplay2[1], HIGH);
-    digitalWrite(segdisplay2[2], HIGH);
-    digitalWrite(segdisplay2[3], HIGH);
-    digitalWrite(segdisplay2[6], HIGH);
-  } else if (tall == 4) {
-    digitalWrite(segdisplay2[1], HIGH);
-    digitalWrite(segdisplay2[2], HIGH);
-    digitalWrite(segdisplay2[5], HIGH);
-    digitalWrite(segdisplay2[6], HIGH);
-  } else if (tall == 5) {
-    digitalWrite(segdisplay2[0], HIGH);
-    digitalWrite(segdisplay2[2], HIGH);
-    digitalWrite(segdisplay2[3], HIGH);
-    digitalWrite(segdisplay2[5], HIGH);
-    digitalWrite(segdisplay2[6], HIGH);
-  } else if (tall == 6) {
-    digitalWrite(segdisplay2[0], HIGH);
-    digitalWrite(segdisplay2[2], HIGH);
-    digitalWrite(segdisplay2[3], HIGH);
-    digitalWrite(segdisplay2[4], HIGH);
-    digitalWrite(segdisplay2[5], HIGH);
-    digitalWrite(segdisplay2[6], HIGH);
-  } else if (tall == 7) {
-    digitalWrite(segdisplay2[0], HIGH);
-    digitalWrite(segdisplay2[1], HIGH);
-    digitalWrite(segdisplay2[2], HIGH);
-  } else if (tall == 8) {
-    digitalWrite(segdisplay2[0], HIGH);
-    digitalWrite(segdisplay2[1], HIGH);
-    digitalWrite(segdisplay2[2], HIGH);
-    digitalWrite(segdisplay2[3], HIGH);
-    digitalWrite(segdisplay2[4], HIGH);
-    digitalWrite(segdisplay2[5], HIGH);
-    digitalWrite(segdisplay2[6], HIGH);
-  } else if (tall == 9) {
-    digitalWrite(segdisplay2[0], HIGH);
-    digitalWrite(segdisplay2[1], HIGH);
-    digitalWrite(segdisplay2[2], HIGH);
-    digitalWrite(segdisplay2[3], HIGH);
-    digitalWrite(segdisplay2[5], HIGH);
-    digitalWrite(segdisplay2[6], HIGH);
-  }
-}
 }
