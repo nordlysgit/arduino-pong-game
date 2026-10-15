@@ -8,7 +8,7 @@ const int anode_pin[number_of_pins] = {22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 4
 
 // Player 1 joystick pins
 //const int player_1_stick_x = A4;
-const int player_1_stick_y = A2;
+const int player_1_stick_y = A0;
 // Player 2 joystick pins
 //const int player_2_stick_x = A2;
 const int player_2_stick_y = A4;
