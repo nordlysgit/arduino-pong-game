@@ -8,10 +8,10 @@ const int anode_pin[number_of_pins] = {22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 4
 
 // Player 1 joystick pins
 //const int player_1_stick_x = A4;
-const int player_1_stick_y = A5;
+const int player_1_stick_y = A2;
 // Player 2 joystick pins
 //const int player_2_stick_x = A2;
-const int player_2_stick_y = A3;
+const int player_2_stick_y = A4;
 
 // 7 Segment display pins 
 // player 1 Må bytte pins
@@ -23,8 +23,8 @@ const int c = 6;
 const int b = 7;
 const int a = 8;
 // player 2 
-const int g2 = A8;
-const int f2 = A9;
+const int g2 = A14;
+const int f2 = A15;
 const int e2 = 13;
 const int d2 = 12;
 const int c2 = 11;
@@ -185,12 +185,38 @@ void loop() {
     showpoints(points2, segdisplay2);
   }
   if (currentMillis5 == MillisTimer1){
-    if(ball_vel.x == 0){
-      ball_vel.x = 1;
+
+    // int randint = random(0, 2);
+    // if(randint == 0){
+
+    // }
+
+    if(ball_vel.x == 0 && ball_vel.y == 0){
+    int randint = random(0, 3);
+      if(randint == 0){
+        ball_vel.x = 1;
+        ball_vel.y = 2;
+      }
+      else if(randint == 1){
+        ball_vel.x = 1;
+        ball_vel.y = -2;
+      }
+      else if(randint == 2){
+        ball_vel.x = -1;
+        ball_vel.y = 2;
+      }
+      else if(randint == 3){
+        ball_vel.x = -1;
+        ball_vel.y = -2;
+      }
     }
-    if(ball_vel.y == 0){
-      ball_vel.y = 2;
-    }
+
+    // if(ball_vel.x == 0){
+    //   ball_vel.x = 1;
+    // }
+    // if(ball_vel.y == 0){
+    //   ball_vel.y = 2;
+    // }
 
   }
   //Serial.print(MillisTimer1);
