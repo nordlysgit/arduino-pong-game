@@ -23,8 +23,8 @@ const int c = 6;
 const int b = 7;
 const int a = 8;
 // player 2 
-const int g2 = 14;
-const int f2 = 15;
+const int g2 = A9;
+const int f2 = A8;
 const int e2 = 13;
 const int d2 = 12;
 const int c2 = 11;
@@ -40,7 +40,7 @@ int player_2_bevegelse_y = 0;
 // 7 Segment display variables Må bytte noen pins
 int segdisplay1[] = {8, 7, 6, 5, 4, 3, 2};
 int points1 = 0;
-int segdisplay2[] = {9, 10, 11, 12, 13, A1, A0};
+int segdisplay2[] = {9, 10, 11, 12, 13, A8, A9};
 int points2 = 0;
 
 // Variables
